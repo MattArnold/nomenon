@@ -10,7 +10,7 @@
   margin: 20px;
 }
 
-#redraw-btn {
+.btn {
   font-size: 24px;
   border: 3px solid rgb(30, 180, 100);
   border-radius: 5px;
@@ -20,7 +20,7 @@
   margin: 20px 0;
 }
 
-#redraw-btn:hover {
+.btn:hover {
   cursor: pointer;
   color: #fff;
   background-color: rgb(30, 180, 100);
