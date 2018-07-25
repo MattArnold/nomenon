@@ -1,9 +1,5 @@
 (function () {
-  var xview = 13,
-    yview = 13,
-    dirt_limit = 5,
-    grass_limit = 5,
-    water_limit = 5,
+  var array_size = 10,
     map;
 
   // Passing multiple parameters creates a multi-dimensional array.
@@ -84,7 +80,7 @@
   }
 
   function doSimulationStep(oldMap) {
-    var mapCopy = createArray(14, 14)
+    var mapCopy = createArray(array_size, array_size)
     //Loop over each row and column of the map
     for (var x = 0; x < oldMap.length; x++) {
       for (var y = 0; y < oldMap[0].length; y++) {
@@ -98,16 +94,6 @@
         var ortho_highest = Math.max(dirt_ortho_count, grass_ortho_count, water_ortho_count);
         var chance = Math.floor(Math.random() * 2);
 
-        // if (highest == 8) {
-        //   var triple_chance = Math.floor(Math.random() * 3);
-        //   if (triple_chance == 0) {
-        //     mapCopy[x][y] == 'grass'
-        //   } else if (triple_chance == 1) {
-        //     mapCopy[x][y] == 'water'
-        //   } else if (triple_chance == 2) {
-        //     mapCopy[x][y] = 'dirt';
-        //   }
-        // } else 
         if (highest == grass_count && highest == water_count) {
           if (ortho_highest == grass_ortho_count && ortho_highest == water_ortho_count) {
             mapCopy[x][y] = (chance) ? 'grass' : 'water';
@@ -141,13 +127,24 @@
         } else {
           mapCopy[x][y] = 'dirt';
         }
+        mapCopy[x][y] = (mapCopy[x][y]) ? mapCopy[x][y] : 'dirt';
       }
     }
     return mapCopy;
   }
 
-  var drawScene = function (currentMap) {
+  var transpose = function (oldMap) {
+    var newMap = createArray(array_size, array_size);
+    for (var x = 0; x < oldMap.length; x++) {
+      for (var y = 0; y < oldMap.length; y++) {
+        newMap[x][y] = oldMap[y][x];
+        newMap[y][x] = oldMap[x][y];
+      }
+    }
+    return newMap;
+  }
 
+  var drawScene = function (currentMap) {
     var Point = Isomer.Point;
     var Path = Isomer.Path;
     var Shape = Isomer.Shape;
@@ -170,11 +167,11 @@
     var rowheight, colheight = 0;
     var grass = true;
 
-    for (var x = currentMap.length - 1; x > 0; x--) {
+    for (var x = currentMap.length - 1; x >= 0; x--) {
       var this_row = currentMap[x];
 
       // x is the row, y is the column
-      for (var y = this_row.length - 1; y > 0; y--) {
+      for (var y = this_row.length - 1; y >= 0; y--) {
         // rowheight = (height > rowheight) ? height + .1 / 10 : height - .1 / 10;
         // colheight = (height > colheight) ? height + .1 / 10 : colheight - .1 / 10;
         // height = height + rowheight + colheight;
@@ -190,6 +187,8 @@
           color = green;
           top_color = lightgreen;
           decoration_color = darkgreen;
+          far_margin = .85;
+          near_margin = .15;
         } else if (this_row[y] == 'water') {
           color = lightblue;
           top_color = blue;
@@ -197,13 +196,16 @@
           height = 0.01;
           far_margin = .85;
           near_margin = .15;
-        } else {
+        } else if (this_row[y] == 'dirt') {
           height = (Math.random() / 20) * 2.7 + .2;
           color = ochre;
           top_color = yellow;
           decoration_color = brown;
           far_margin = .95;
           near_margin = .05;
+        } else {
+          map = doSimulationStep(map);
+          return
         }
 
         // Add the undecorated brick:
@@ -250,8 +252,14 @@
     drawScene(map);
   };
 
+  document.getElementsByClassName('rotate')[0].onclick = function () {
+    document.getElementById('canvas').getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    map = transpose(map);
+    map = map.reverse();
+    drawScene(map);
+  };
 
-  map = createArray(14, 14);
+  map = createArray(array_size, array_size);
 
   function initializeMap(newMap) {
     for (i = 0; i < newMap.length; i++) {
@@ -270,9 +278,6 @@
   }
 
   map = initializeMap(map);
-  map = doSimulationStep(map);
-  map = doSimulationStep(map);
-  map = doSimulationStep(map);
   drawScene(map);
 
 })();
